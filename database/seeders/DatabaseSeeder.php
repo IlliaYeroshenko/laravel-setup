@@ -2,22 +2,72 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+
+use App\Models\User;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\Comment;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        
+        $users = User::factory(3)->create();
+        
+        foreach ($users as $user) {
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+            $projects = Project::factory(2)->create([
+                'user_id' => $user->id,
+            ]);
+
+
+            foreach ($projects as $project) {
+
+
+                $statuses = [
+                    'new',
+                    'in_progress',
+                    'done',
+                    'new',
+                    'in_progress',
+                ];
+
+
+                foreach ($statuses as $status) {
+
+                    $task = Task::factory()->create([
+                        'project_id' => $project->id,
+
+                        'author_id' =>
+                            $users->random()->id,
+
+                        'assigned_to' =>
+                            $users->random()->id,
+
+                        'status' => $status,
+                    ]);
+
+
+                    $commentCount = rand(2, 3);
+
+                    $commentUsers = $users
+                        ->shuffle()
+                        ->take($commentCount);
+
+
+                    foreach ($commentUsers as $commentUser) {
+
+                        Comment::factory()->create([
+                            'task_id' => $task->id,
+
+                            'user_id' =>
+                                $commentUser->id,
+                        ]);
+                    }
+                }
+            }
+        }
     }
 }
