@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TaskCreated;
+
 use Illuminate\Http\Request;
 
 use App\Models\Task;
@@ -22,16 +24,19 @@ class TaskController extends Controller
     }
 
 
-    public function store(StoreTaskRequest $request)
-    {
-        $task = Task::create(
-            $request->validated()
-        );
+  public function store(StoreTaskRequest $request)
+{
+    $task = Task::create(
+        $request->validated()
+    );
 
-        $task->load('project');
+    TaskCreated::dispatch($task);
 
-        return new TaskResource($task);
-    }
+    $task->load('project');
+
+    return new TaskResource($task);
+}
+    
 
 
     public function show(Request $request, Task $task)
